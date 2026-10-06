@@ -180,3 +180,7 @@ mini-nse/
 
 More trading days of real data; flat arrays indexed by price tick instead of `std::map`; a memory pool for
 orders; NSE's closing auction (live since 3 August 2026) and the F&O pre-open session.
+
+## License
+
+MIT, see [LICENSE](LICENSE). NSE data is not included and remains subject to NSE's terms.
