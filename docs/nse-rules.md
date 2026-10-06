@@ -156,6 +156,9 @@ Previous close ₹100. Orders (all limit):
 
 ## 10. Test cases to build (your exercise)
 
+Concrete order books for all nine: [test-cases.md](test-cases.md) (questions) and
+[test-cases-answers.md](test-cases-answers.md) (answers, checked by brute force). Solve on paper before peeking.
+
 Each one becomes a GoogleTest test in Phase 1. Work out the expected answer by hand **before** coding.
 1. The worked example above.
 2. Same example plus a **market buy of 50**: what changes?
