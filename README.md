@@ -24,7 +24,7 @@ between 9:08 and 9:10 so nobody can time it, NSE picks **one opening price** for
 Everyone trades at that one price: **market orders first, then the better price, then whoever came first**.
 Whatever is left moves into the normal market at 9:15, where every order is matched the moment it arrives.
 
-The full rules, each with its source, are in [docs/nse-rules.md](docs/nse-rules.md).
+The full rules, each with its source, are in [docs/spec/nse-rules.md](docs/spec/nse-rules.md).
 
 ## How it works
 
@@ -57,7 +57,7 @@ A collector saves NSE's pre-open data every 30 seconds each trading morning (NSE
 pre-close snapshot includes NSE's **indicative price computed on that exact book**, so the engine can replay
 the same book and must give the same answer.
 
-![Engine vs NSE](docs/real-data.png)
+![Engine vs NSE](docs/results/real-data.png)
 
 - **Exact, where the whole book is visible: 134 / 135.** The miss (HYBRIDFIN, 09:00:11) is explained
   automatically: NSE's price equals the book's result with its newest order removed, so NSE published the price
@@ -67,13 +67,13 @@ the same book and must give the same answer.
 - **Partial books (52.6%)** are an approximation, not a correctness test: NSE shows only ~10 price levels, so
   hidden orders have to be guessed.
 
-Details and every mismatch: [docs/real-data-results.md](docs/real-data-results.md). One trading day so far
+Details and every mismatch: [docs/results/real-data-results.md](docs/results/real-data-results.md). One trading day so far
 (2026-10-06); the numbers grow as the collector runs.
 
 ### Against an independent implementation
 
-[`tools/reference.py`](tools/reference.py) is a deliberately slow, obviously-correct Python version of the
-whole session (it tries every price with plain sums and re-sorts lists). [`tools/fuzz.py`](tools/fuzz.py)
+[`tools/verify/reference.py`](tools/verify/reference.py) is a deliberately slow, obviously-correct Python version of the
+whole session (it tries every price with plain sums and re-sorts lists). [`tools/verify/fuzz.py`](tools/verify/fuzz.py)
 generates random mornings on a coarse price grid, so ties, every tie-break rule, market-only auctions and every
 reject reason happen often, then diffs both engines line by line.
 
@@ -88,7 +88,7 @@ reject reason happen often, then diffs both engines line by line.
 
 ### Speed
 
-![Latency per event](docs/latency.png)
+![Latency per event](docs/results/latency.png)
 
 | Event (Release build, 205,004-event morning) | p50 | p99 | p99.9 |
 |---|---|---|---|
@@ -114,10 +114,10 @@ cmake -S . -B build && cmake --build build -j
 ctest --test-dir build --output-on-failure            # 67 tests
 
 ./build/mini_nse_replay examples/case1_morning.txt    # a whole morning, line by line
-python3 tools/fuzz.py --replay build/mini_nse_replay --count 20000
+python3 tools/verify/fuzz.py --replay build/mini_nse_replay --count 20000
 
 cmake -S . -B build-release -DCMAKE_BUILD_TYPE=Release && cmake --build build-release -j
-python3 tools/sessions.py --benchmark > morning.txt
+python3 tools/verify/sessions.py --benchmark > morning.txt
 ./build-release/mini_nse_bench morning.txt
 ```
 
@@ -137,13 +137,31 @@ ADD 21 SELL LIMIT 100.00 40
 ## Layout
 
 ```
-include/mini_nse/   order, auction_book, auction, order_book, session, events, script, price, trade
-src/                the engine
-apps/               mini_nse_replay (replay a morning), mini_nse_bench (latency per event)
-tests/              GoogleTest: the 9 hand-solved cases, every phase rule, invariants, determinism
-tools/              Python: NSE collector, converter, validation, reference engine, fuzzer, charts
-docs/               rules spec with sources, test cases, results, charts
-examples/           a sample morning and its expected output
+mini-nse/
+├── include/mini_nse/       the engine's public headers
+│   ├── order.h, trade.h        the vocabulary: prices in paise, orders, trades
+│   ├── auction_book.h          pre-open orders, kept in time priority
+│   ├── auction.h               equilibrium price, fills and leftovers
+│   ├── order_book.h            the 9:15 price-time order book
+│   ├── session.h, events.h     one stock's morning as a phase state machine
+│   └── script.h, price.h       the morning file format, exact price text
+├── src/                    the engine's implementation (one .cpp per header)
+├── apps/                   command-line programs
+│   ├── replay.cpp              mini_nse_replay: play morning files, print every fact
+│   └── bench.cpp               mini_nse_bench: latency percentiles per event
+├── tests/                  GoogleTest: the 9 hand-solved cases, phase rules, invariants, determinism
+├── examples/               a sample morning and its checked output (a golden-file test)
+├── tools/                  Python, standard library only (charts need matplotlib)
+│   ├── collect/                collect_preopen.py: saves NSE's pre-open data each morning
+│   ├── verify/                 reference engine, random fuzzer, NSE converter, real-data validation
+│   └── charts/                 latency_chart.py
+├── docs/
+│   ├── spec/                   NSE's rules with sources, the 9 test cases and their answers
+│   └── results/                real-data results and the charts in this README
+├── data/                   not committed: raw/ (laptop collector), cloud/ (cloud collector), results/
+├── .github/workflows/      CI: build and run every test on each push
+├── CMakeLists.txt
+└── LICENSE
 ```
 
 ## Assumptions and limits
@@ -151,7 +169,7 @@ examples/           a sample morning and its expected output
 - **Rules not confirmed from an NSE circular**, each isolated so it's easy to change: whether leftover orders
   keep their original time priority at 9:15; that only a quantity reduction keeps time priority on modify;
   that an unfilled market order in the normal market is cancelled. See open questions in
-  [docs/nse-rules.md](docs/nse-rules.md#8-open-questions-resolve-before-or-during-phase-1).
+  [docs/spec/nse-rules.md](docs/spec/nse-rules.md#8-open-questions-resolve-before-or-during-phase-1).
 - **NSE's free data** shows ~10 price levels per stock and refreshes every 30–60 s, which caps how much can
   be checked exactly. Raw data isn't committed; NSE's data isn't mine to republish.
 - **One stock per session**, no clearing, margins or circuit breakers (out of scope).

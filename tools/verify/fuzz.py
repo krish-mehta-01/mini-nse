@@ -3,7 +3,7 @@
 Every morning is replayed by both; any line that differs is a bug in one of them. It also counts which
 rules and rejects the random mornings exercised, so you can see the test isn't only hitting easy cases.
 
-    python3 tools/fuzz.py --replay build/mini_nse_replay --count 10000 --seed 1
+    python3 tools/verify/fuzz.py --replay build/mini_nse_replay --count 10000 --seed 1
 """
 import argparse
 import collections

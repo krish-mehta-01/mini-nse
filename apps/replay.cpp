@@ -9,7 +9,7 @@
 //   TRADE A|C <buy id> <sell id> <price> <qty>   A = auction, C = continuous (normal market)
 //   BOOK BUY|SELL <id> LIMIT <price>|MARKET <qty> what is still waiting at the end, best priority first
 //
-// The format is deliberately plain so tools/reference.py can produce the very same lines.
+// The format is deliberately plain so tools/verify/reference.py can produce the very same lines.
 #include <fstream>
 #include <iostream>
 #include <string>

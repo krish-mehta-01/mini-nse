@@ -3,8 +3,8 @@
 The prices sit on a small grid around the previous close, so ties, every tie-break rule, market orders,
 partial fills, cancels, modifies and every kind of reject all happen often.
 
-    python3 tools/sessions.py --seed 7              # print one random morning
-    python3 tools/sessions.py --seed 7 --orders 200000 > big.txt   # a big one for benchmarking
+    python3 tools/verify/sessions.py --seed 7                  # print one random morning
+    python3 tools/verify/sessions.py --benchmark > morning.txt  # a big realistic one for timing
 """
 import argparse
 import random

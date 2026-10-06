@@ -1,6 +1,6 @@
 #pragma once
 
-// The nine hand-solved cases from docs/test-cases.md, shared by every auction test.
+// The nine hand-solved cases from docs/spec/test-cases.md, shared by every auction test.
 
 #include <vector>
 

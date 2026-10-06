@@ -1,5 +1,5 @@
-// Phase 1: the opening price. The nine paper cases from docs/test-cases.md, plus edge cases.
-// Expected answers come from docs/test-cases-answers.md.
+// Phase 1: the opening price. The nine paper cases from docs/spec/test-cases.md, plus edge cases.
+// Expected answers come from docs/spec/test-cases-answers.md.
 #include "paper_cases.h"
 
 namespace mini_nse {

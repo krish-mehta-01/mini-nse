@@ -182,4 +182,4 @@ Each one becomes a GoogleTest test in Phase 1. Work out the expected answer by h
 - [S5] Kotak Neo, *NSE pre-open session rules change from 7 September 2026*: https://www.kotakneo.com/news/trading/nse-pre-open-session-new-order-rules-7-september/
 - [S6] INDmoney, *NSE pre-open rules 2026: what changed?*: https://www.indmoney.com/blog/stocks/nse-pre-open-session-rules-changes
 - [S7] NSE circular NSE/CMTR/75479 (30 Jul 2026): closing auction session live from 3 Aug 2026 (stretch goal context): https://nsearchives.nseindia.com/content/circulars/CMTR75479.pdf
-- Data checks: `data/raw/2026-10-05/` (collected by `tools/collect_preopen.py`).
+- Data checks: `data/raw/2026-10-05/` (collected by `tools/collect/collect_preopen.py`).

@@ -32,7 +32,7 @@ INTERVAL_S = 30
 # then a buffer until 09:15. Running to 09:16 captures the book before the close and NSE's final result.
 END_HOUR, END_MINUTE = 9, 16
 
-out_dir = Path(__file__).resolve().parent.parent / "data" / "raw"  # changed by --out
+out_dir = Path(__file__).resolve().parents[2] / "data" / "raw"  # changed by --out
 
 
 def log(msg):

@@ -1,5 +1,5 @@
 // Phase 2: who gets the shares in the auction, and what moves on to the normal market.
-// Expected trades come from docs/test-cases-answers.md.
+// Expected trades come from docs/spec/test-cases-answers.md.
 #include <string>
 
 #include "paper_cases.h"

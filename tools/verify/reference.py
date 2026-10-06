@@ -4,7 +4,7 @@ It favours being obviously right over being fast: the auction tries every candid
 and the order book is a list that gets re-sorted whenever it's needed. It prints exactly the same lines as
 mini_nse_replay (see apps/replay.cpp), so the two can be compared line by line.
 
-    python3 tools/reference.py FILE...
+    python3 tools/verify/reference.py FILE...
 """
 import sys
 

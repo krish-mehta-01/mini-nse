@@ -1,7 +1,7 @@
-"""Draws docs/latency.png from mini_nse_bench's --csv output: latency at each percentile, per kind of event.
+"""Draws docs/results/latency.png from mini_nse_bench's --csv output: latency at each percentile, per kind of event.
 
     ./build-release/mini_nse_bench morning.txt --csv latency.csv
-    python3 tools/latency_chart.py latency.csv docs/latency.png
+    python3 tools/charts/latency_chart.py latency.csv docs/results/latency.png
 """
 import csv
 import sys
