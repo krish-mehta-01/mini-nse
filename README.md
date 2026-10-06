@@ -1,5 +1,7 @@
 # Mini NSE
 
+[![CI](https://github.com/krish-mehta-01/mini-nse/actions/workflows/ci.yml/badge.svg)](https://github.com/krish-mehta-01/mini-nse/actions/workflows/ci.yml)
+
 A C++20 engine that reproduces how India's National Stock Exchange opens every morning: the **pre-open call
 auction** (under the rules in force since 7 September 2026) and the **price-time order book** that takes over
 at 9:15. It's checked against NSE's own published prices, against an independent Python implementation on

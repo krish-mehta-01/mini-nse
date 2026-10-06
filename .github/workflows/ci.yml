@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    name: Build and test (${{ matrix.name }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Debug
+            flags: ""
+          - name: ASan + UBSan
+            flags: "-fsanitize=address,undefined -fno-omit-frame-pointer"
+    env:
+      CXX: g++-14
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="${{ matrix.flags }}"
+
+      - name: Build
+        run: cmake --build build -j
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      # A different seed every run, so CI keeps trying mornings nobody has tried before.
+      - name: 3,000 new random mornings against the Python reference
+        run: python3 tools/verify/fuzz.py --replay build/mini_nse_replay --count 3000 --seed $((GITHUB_RUN_NUMBER * 100000))
