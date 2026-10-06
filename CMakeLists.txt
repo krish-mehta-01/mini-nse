@@ -29,6 +29,7 @@ include(GoogleTest)
 add_library(mini_nse
   src/auction_book.cpp
   src/auction.cpp
+  src/order_book.cpp
 )
 target_include_directories(mini_nse PUBLIC include)
 
@@ -36,6 +37,7 @@ add_executable(mini_nse_tests
   tests/auction_book_test.cpp
   tests/auction_test.cpp
   tests/auction_fill_test.cpp
+  tests/order_book_test.cpp
 )
 target_link_libraries(mini_nse_tests PRIVATE mini_nse GTest::gtest_main)
 gtest_discover_tests(mini_nse_tests)
