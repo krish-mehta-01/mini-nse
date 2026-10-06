@@ -74,9 +74,45 @@ def morning(seed, orders=40):
     return "\n".join(lines) + "\n"
 
 
+def benchmark_morning(seed, preopen=5000, continuous=200000):
+    """A big, realistic morning for timing: mostly valid orders around Rs 100 on a 5-paise tick,
+    with cancels and modifies of orders that are really waiting, and market orders that sweep levels."""
+    rng = random.Random(seed)
+    lines = [f"# benchmark morning, seed {seed}", "PREV_CLOSE 100.00", "TICK 0.05", "PHASE PREOPEN"]
+    live, next_id = [], 1
+
+    def price(spread):
+        return 10000 + 5 * rng.randint(-spread, spread)
+
+    def stretch(n, spread, market_share, cancel_share, modify_share):
+        nonlocal next_id
+        for _ in range(n):
+            roll = rng.random()
+            if live and roll < cancel_share:
+                lines.append(f"CANCEL {live.pop(rng.randrange(len(live)))}")
+            elif live and roll < cancel_share + modify_share:
+                lines.append(f"MODIFY {rng.choice(live)} {fmt(price(spread))} {rng.randint(1, 500)}")
+            else:
+                side = rng.choice(["BUY", "SELL"])
+                if rng.random() < market_share:
+                    lines.append(f"ADD {next_id} {side} MARKET {rng.randint(1, 300)}")
+                else:
+                    lines.append(f"ADD {next_id} {side} LIMIT {fmt(price(spread))} {rng.randint(1, 500)}")
+                    live.append(next_id)
+                next_id += 1
+
+    stretch(preopen, 40, 0.05, 0.10, 0.05)
+    lines.append("PHASE LIMIT_ONLY")
+    lines.append("PHASE AUCTION")
+    lines.append("PHASE CONTINUOUS")
+    stretch(continuous, 20, 0.08, 0.30, 0.10)
+    return "\n".join(lines) + "\n"
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--orders", type=int, default=40, help="roughly how many events per stretch")
+    parser.add_argument("--benchmark", action="store_true", help="a big realistic morning for timing instead")
     args = parser.parse_args()
-    print(morning(args.seed, args.orders), end="")
+    print(benchmark_morning(args.seed) if args.benchmark else morning(args.seed, args.orders), end="")

@@ -60,3 +60,7 @@ add_test(NAME replay_case1_morning_matches_golden_file
 add_test(NAME fuzz_300_random_mornings_against_python_reference
   COMMAND python3 tools/fuzz.py --replay $<TARGET_FILE:mini_nse_replay> --count 300 --seed 7
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+# Benchmark: per-event latency percentiles and throughput (use a Release build)
+add_executable(mini_nse_bench apps/bench.cpp)
+target_link_libraries(mini_nse_bench PRIVATE mini_nse)
