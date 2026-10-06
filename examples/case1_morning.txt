@@ -1,0 +1,20 @@
+# Case 1 from docs/test-cases.md as a whole morning, then a minute of normal trading.
+# Run it:  ./build/mini_nse_replay examples/case1_morning.txt
+PREV_CLOSE 100.00
+
+PHASE PREOPEN                  # 9:00: order entry opens
+ADD 1 BUY LIMIT 102.00 300
+ADD 11 SELL LIMIT 99.00 150
+ADD 2 BUY LIMIT 101.00 200
+ADD 12 SELL LIMIT 100.00 200
+ADD 3 BUY LIMIT 100.00 100
+ADD 13 SELL LIMIT 101.00 250
+
+PHASE LIMIT_ONLY               # 9:05: market orders closed
+ADD 4 BUY MARKET 50            # rejected
+
+PHASE AUCTION                  # the random close (9:08-9:10): the auction runs
+PHASE CONTINUOUS               # 9:15: leftovers open the normal market
+
+ADD 21 SELL LIMIT 100.00 40    # meets buyer 3, carried over from the auction
+ADD 22 BUY MARKET 120          # takes the 100 left at 101; the other 20 are cancelled

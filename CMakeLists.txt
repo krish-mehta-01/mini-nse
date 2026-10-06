@@ -46,3 +46,12 @@ add_executable(mini_nse_tests
 )
 target_link_libraries(mini_nse_tests PRIVATE mini_nse GTest::gtest_main)
 gtest_discover_tests(mini_nse_tests)
+
+# Command-line replay: plays morning files through the engine
+add_executable(mini_nse_replay apps/replay.cpp)
+target_link_libraries(mini_nse_replay PRIVATE mini_nse)
+
+# Golden-file test: the replay of the example morning must not change
+add_test(NAME replay_case1_morning_matches_golden_file
+  COMMAND sh -c "$<TARGET_FILE:mini_nse_replay> examples/case1_morning.txt | diff - examples/case1_morning.expected"
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
