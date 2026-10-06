@@ -1,5 +1,6 @@
 #pragma once
 
+#include <unordered_set>
 #include <vector>
 
 #include "mini_nse/order.h"
@@ -29,6 +30,7 @@ public:
 
 private:
     std::vector<Order> orders_;  // a plain vector: simple and fast enough here; Phase 5 measures alternatives
+    std::unordered_set<OrderId> ids_;  // the ids in orders_: makes the duplicate check in add() O(1), not a scan
     std::uint64_t next_sequence_ = 1;
 };
 

@@ -13,11 +13,12 @@ bool is_valid(OrderType type, Price price, Quantity quantity) {
 }  // namespace
 
 bool AuctionBook::add(Order order) {
-    if (!is_valid(order.type, order.price, order.quantity) || find(order.id) != nullptr) {
+    if (!is_valid(order.type, order.price, order.quantity) || ids_.contains(order.id)) {
         return false;
     }
     order.sequence = next_sequence_++;
     orders_.push_back(order);
+    ids_.insert(order.id);
     return true;
 }
 
@@ -27,6 +28,7 @@ bool AuctionBook::cancel(OrderId id) {
         return false;
     }
     orders_.erase(it);
+    ids_.erase(id);
     return true;
 }
 
