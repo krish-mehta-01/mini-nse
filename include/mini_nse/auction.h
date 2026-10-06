@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "mini_nse/auction_book.h"
+#include "mini_nse/trade.h"
 
 namespace mini_nse {
 
@@ -42,5 +43,17 @@ std::vector<PriceLevelStats> auction_table(const AuctionBook& book);
 // NSE's equilibrium (opening) price: most tradable quantity, then least imbalance,
 // then closest to the previous close. All prices in paise.
 AuctionResult find_equilibrium(const AuctionBook& book, Price previous_close);
+
+// The whole auction: the price, who traded with whom, and what is left for the normal market.
+struct AuctionOutcome {
+    AuctionResult result;
+    std::vector<Trade> trades;     // in NSE's matching order, all at result.price
+    std::vector<Order> leftovers;  // unfilled remainders, earliest first, ready for the 9:15 normal market
+};
+
+// Finds the price, then fills orders in priority: market orders first, then the better price, then the
+// earlier arrival. Unfilled market orders become limit orders at the auction price (or at the previous
+// close if no price was found). Leftovers keep their original arrival sequence, so their time priority.
+AuctionOutcome run_auction(const AuctionBook& book, Price previous_close);
 
 }  // namespace mini_nse

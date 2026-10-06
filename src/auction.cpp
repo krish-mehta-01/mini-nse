@@ -78,6 +78,33 @@ AuctionResult result_from(const PriceLevelStats& row, DecidedBy rule) {
     return {row.price, row.tradable, row.imbalance, rule};
 }
 
+// True if `a` gets filled before `b` (same side): market orders first, then the better price,
+// then whoever arrived first.
+bool fills_before(const Order& a, const Order& b) {
+    if (a.type != b.type) {
+        return a.type == OrderType::Market;
+    }
+    if (a.type == OrderType::Limit && a.price != b.price) {
+        return a.side == Side::Buy ? a.price > b.price : a.price < b.price;
+    }
+    return a.sequence < b.sequence;
+}
+
+// The orders on one side willing to trade at `price`, in the order they get filled.
+// Pointers, so filling them updates `orders`.
+std::vector<Order*> willing_in_priority(std::vector<Order>& orders, Side side, Price price) {
+    std::vector<Order*> willing;
+    for (Order& order : orders) {
+        const bool accepts_price = order.type == OrderType::Market ||
+                                   (side == Side::Buy ? order.price >= price : order.price <= price);
+        if (order.side == side && accepts_price) {
+            willing.push_back(&order);
+        }
+    }
+    std::ranges::sort(willing, [](const Order* a, const Order* b) { return fills_before(*a, *b); });
+    return willing;
+}
+
 }  // namespace
 
 std::vector<PriceLevelStats> auction_table(const AuctionBook& book) {
@@ -124,6 +151,51 @@ AuctionResult find_equilibrium(const AuctionBook& book, Price previous_close) {
         return result_from(candidates.front(), DecidedBy::NearestPreviousClose);
     }
     return result_from(stats_at(totals, previous_close), DecidedBy::HalfwayPreviousClose);
+}
+
+AuctionOutcome run_auction(const AuctionBook& book, Price previous_close) {
+    AuctionOutcome outcome;
+    outcome.result = find_equilibrium(book, previous_close);
+    std::vector<Order> remaining = book.orders();  // a copy: quantities go down as orders fill
+
+    if (outcome.result.price) {
+        const Price price = *outcome.result.price;
+        const std::vector<Order*> buys = willing_in_priority(remaining, Side::Buy, price);
+        const std::vector<Order*> sells = willing_in_priority(remaining, Side::Sell, price);
+
+        // Walk both queues from the front. Market orders lead each queue, so this matches market vs
+        // market first, then market vs limit, then limit vs limit: NSE's matching sequence.
+        std::size_t b = 0;
+        std::size_t s = 0;
+        while (b < buys.size() && s < sells.size()) {
+            Order& buy = *buys[b];
+            Order& sell = *sells[s];
+            const Quantity quantity = std::min(buy.quantity, sell.quantity);
+            outcome.trades.push_back({buy.id, sell.id, price, quantity});
+            buy.quantity -= quantity;
+            sell.quantity -= quantity;
+            if (buy.quantity == 0) {
+                ++b;
+            }
+            if (sell.quantity == 0) {
+                ++s;
+            }
+        }
+    }
+
+    // Whatever didn't fill moves to the normal market with its original arrival sequence.
+    const Price carry_price = outcome.result.price.value_or(previous_close);
+    for (Order order : remaining) {
+        if (order.quantity == 0) {
+            continue;
+        }
+        if (order.type == OrderType::Market) {
+            order.type = OrderType::Limit;
+            order.price = carry_price;
+        }
+        outcome.leftovers.push_back(order);
+    }
+    return outcome;
 }
 
 }  // namespace mini_nse

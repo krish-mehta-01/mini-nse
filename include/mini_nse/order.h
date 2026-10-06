@@ -25,6 +25,8 @@ struct Order {
     Price price = 0;              // ignored for market orders
     Quantity quantity = 0;
     std::uint64_t sequence = 0;   // arrival number, set by the book; lower = earlier = higher time priority
+
+    bool operator==(const Order&) const = default;
 };
 
 }  // namespace mini_nse

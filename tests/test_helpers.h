@@ -38,4 +38,15 @@ inline void PrintTo(const PriceLevelStats& row, std::ostream* out) {
          << ", tradable " << row.tradable << ", imbalance " << row.imbalance << "}";
 }
 
+inline void PrintTo(const Trade& trade, std::ostream* out) {
+    *out << "{buy " << trade.buy_id << ", sell " << trade.sell_id << ", " << trade.quantity << " @ "
+         << trade.price << "}";
+}
+
+inline void PrintTo(const Order& order, std::ostream* out) {
+    *out << "{id " << order.id << (order.side == Side::Buy ? " buy " : " sell ")
+         << (order.type == OrderType::Market ? "market" : "limit") << " " << order.quantity << " @ "
+         << order.price << ", seq " << order.sequence << "}";
+}
+
 }  // namespace mini_nse

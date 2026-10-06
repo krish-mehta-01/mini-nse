@@ -1,5 +1,6 @@
 # Build output
 build/
+build-*/
 
 # Raw NSE data: large, and not ours to republish
 data/
