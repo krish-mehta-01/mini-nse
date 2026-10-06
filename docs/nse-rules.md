@@ -131,6 +131,7 @@ What `api/market-data-pre-open?key=ALL` returned on 2026-10-05 (checked against 
 | ~~Q3~~ | ~~Is the book shown during order entry pre-match or residual?~~ **Answered 2026-10-06: pre-match** (§7) | Done |
 | Q4 | Why do 249 stocks in the 2026-10-05 snapshot still have buys above / sells below the IEP? | Explore the saved file (your puzzle) |
 | Q5 | Market orders: do they count toward demand/supply at *every* candidate price? (Assumed yes, §3) | NSE FAQ / circular |
+| Q6 | Modifying an order in pre-open: assumed only a quantity *reduction* keeps time priority (standard exchange practice; implemented in `AuctionBook::modify`) | NSE FAQ / circular |
 
 ## 9. Worked example
 

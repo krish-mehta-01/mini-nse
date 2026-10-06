@@ -25,8 +25,16 @@ add_compile_options(-Wall -Wextra -Wpedantic)
 enable_testing()
 include(GoogleTest)
 
-# Phase 1: add your engine as a library here (add_library) and link it into the tests below.
+# The engine, as a library so tests (and later the replay tool) can share it
+add_library(mini_nse
+  src/auction_book.cpp
+  src/auction.cpp
+)
+target_include_directories(mini_nse PUBLIC include)
 
-add_executable(smoke_test tests/smoke_test.cpp)
-target_link_libraries(smoke_test PRIVATE GTest::gtest_main)
-gtest_discover_tests(smoke_test)
+add_executable(mini_nse_tests
+  tests/auction_book_test.cpp
+  tests/auction_test.cpp
+)
+target_link_libraries(mini_nse_tests PRIVATE mini_nse GTest::gtest_main)
+gtest_discover_tests(mini_nse_tests)
