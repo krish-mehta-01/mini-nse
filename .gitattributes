@@ -1,0 +1,4 @@
+# Same line endings whether files are edited from Windows or WSL
+* text=auto eol=lf
+*.png binary
+*.gz binary

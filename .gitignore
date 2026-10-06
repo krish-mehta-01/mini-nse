@@ -1,0 +1,8 @@
+# Build output
+build/
+
+# Raw NSE data: large, and not ours to republish
+data/
+
+# Python
+__pycache__/
