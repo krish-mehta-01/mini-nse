@@ -55,3 +55,8 @@ target_link_libraries(mini_nse_replay PRIVATE mini_nse)
 add_test(NAME replay_case1_morning_matches_golden_file
   COMMAND sh -c "$<TARGET_FILE:mini_nse_replay> examples/case1_morning.txt | diff - examples/case1_morning.expected"
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+# Random cross-check against the independent Python reference (tools/fuzz.py runs bigger batches)
+add_test(NAME fuzz_300_random_mornings_against_python_reference
+  COMMAND python3 tools/fuzz.py --replay $<TARGET_FILE:mini_nse_replay> --count 300 --seed 7
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
