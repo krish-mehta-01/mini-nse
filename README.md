@@ -66,6 +66,8 @@ the same book and must give the same answer.
   one order behind the book. Its next snapshot agreed with the engine.
 - **Final result, full book: 8 / 12.** All 4 misses are explained by orders arriving in the ~30 s between NSE's
   last refresh and the close (NSE's own last indicative price moved too).
+- **Market orders count at every price**, as the rules say: all 83 full books containing market orders match,
+  against only 38 if market orders were left out.
 - **Partial books (52.6%)** are an approximation, not a correctness test: NSE shows only ~10 price levels, so
   hidden orders have to be guessed.
 
@@ -168,7 +170,8 @@ mini-nse/
 
 ## Assumptions and limits
 
-- **Rules not confirmed from an NSE circular**, each isolated so it's easy to change: whether leftover orders
+- **Rules not confirmed from an NSE circular** (the circular brokers cite isn't retrievable), each isolated
+  so it's easy to change: whether leftover orders
   keep their original time priority at 9:15; that only a quantity reduction keeps time priority on modify;
   that an unfilled market order in the normal market is cancelled. See open questions in
   [docs/spec/nse-rules.md](docs/spec/nse-rules.md#8-open-questions-resolve-before-or-during-phase-1).

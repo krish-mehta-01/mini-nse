@@ -129,10 +129,16 @@ What `api/market-data-pre-open?key=ALL` returned on 2026-10-05 (checked against 
 | Q1 | Timestamp of unmatched orders moved to the normal market (§5) | Find the NSE circular for the 7 Sep 2026 change on NSE's circulars page |
 | Q2 | Price band and tick size checks in pre-open (§2) | NSE FAQ on pre-open / price bands page |
 | ~~Q3~~ | ~~Is the book shown during order entry pre-match or residual?~~ **Answered 2026-10-06: pre-match** (§7) | Done |
-| Q4 | Why do 249 stocks in the 2026-10-05 snapshot still have buys above / sells below the IEP? | Explore the saved file (your puzzle) |
-| Q5 | Market orders: do they count toward demand/supply at *every* candidate price? (Assumed yes, §3) | NSE FAQ / circular |
+| ~~Q4~~ | ~~Why do 249 stocks in the 2026-10-05 snapshot still have buys above / sells below the IEP?~~ **Answered 2026-10-06:** rationing plus rule 3. All of them traded. When two prices tie on rules 1 and 2 (no orders between them), rule 3 can pick the lower one, and the heavy side's last willing buyers, priced above it, get rationed out. E.g. AVADHSUGAR: 870.45 and 870.50 tie, rule 3 picks 870.45 (nearer the 840.35 close), and 1,310 shares bid at 870.50 stay waiting. The book is still uncrossed (the lowest seller is at 872.90), and the engine does the same | Done |
+| ~~Q5~~ | ~~Market orders: do they count toward demand/supply at *every* candidate price?~~ **Confirmed from data 2026-10-06:** all 83 full-book stocks with market orders match NSE's price when they count at every price; only 38 of 83 would match if they were ignored | Done |
 | Q6 | Modifying an order in pre-open: assumed only a quantity *reduction* keeps time priority (standard exchange practice; implemented in `AuctionBook::modify`) | NSE FAQ / circular |
 | Q7 | Normal market: what happens to the unfilled part of a market order? Assumed **cancelled** (`OrderBook::submit`); some exchanges convert it to a limit order instead | NSE normal-market FAQ |
+
+Searched again 2026-10-06 for the circular behind the 7 Sep 2026 change: brokers cite NSE/CMTR/74969, but that file
+returns 404 on NSE's archive and sources disagree on which circular it is. Several independent sources do agree on
+what's implemented here: market orders before limit orders, the market-vs-market → market-vs-limit → limit-vs-limit
+sequence, and existing market orders locked after 9:05. Q1, Q2, Q6 and Q7 stay open until NSE publishes something
+retrievable.
 
 ## 9. Worked example
 
