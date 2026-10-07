@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mini NSE: the opening auction, step by step</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div>
+      <h1>Mini NSE <span class="muted">· the opening auction, step by step</span></h1>
+      <p class="sub">Every step is produced by the real C++ engine (<code>mini_nse_trace</code>). This page only displays it.</p>
+    </div>
+    <div class="pickers">
+      <label>Morning <select id="trace-select"></select></label>
+      <label class="file">Open a trace file… <input type="file" id="trace-file" accept=".json"></label>
+    </div>
+  </header>
+
+  <nav class="timeline" id="timeline" aria-label="Phases of the morning"></nav>
+
+  <section class="controls" aria-label="Step controls">
+    <button id="first" title="First step (Home)">⏮</button>
+    <button id="prev" title="Previous step (←)">◀</button>
+    <span id="position" class="position"></span>
+    <button id="next" title="Next step (→)">▶</button>
+    <button id="last" title="Last step (End)">⏭</button>
+    <input type="range" id="slider" min="0" value="0" aria-label="Step">
+  </section>
+
+  <section class="event card" id="event"></section>
+
+  <main class="grid">
+    <section class="card" id="book"></section>
+    <section class="card" id="right"></section>
+  </main>
+
+  <footer class="foot muted">
+    Source: <a href="https://github.com/krish-mehta-01/mini-nse">github.com/krish-mehta-01/mini-nse</a> ·
+    Keys: ← → step, Home / End
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>

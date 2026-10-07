@@ -1,0 +1,44 @@
+name: Viewer on GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    env:
+      CXX: g++-14
+    steps:
+      - uses: actions/checkout@v5
+
+      # The traces come from the real engine on every deploy, so the page can't drift from the code.
+      - name: Build the trace tool
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j --target mini_nse_trace
+
+      - name: Make the sample traces
+        run: python3 viewer/make_traces.py build/mini_nse_trace
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: viewer
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

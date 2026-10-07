@@ -12,7 +12,15 @@ at 9:15. It's checked against NSE's own published prices, against an independent
 | **Real NSE data** | Matches NSE's indicative opening price on **327 of 329** checks where the whole book is visible (2 trading days); both misses are traced to NSE publishing its price one order behind its book |
 | **Random cross-check** | **20,000** random mornings vs a separate Python engine: **0 mismatches** (250,000+ trades compared) |
 | **Speed** | **5.6–6.5 million events/s**; a new order in the normal market takes **~180 ns** typically, **~0.7 µs** at p99 |
-| **Tests** | 67 in `ctest`, including a golden file and a random cross-check; clean under AddressSanitizer and UBSan |
+| **Tests** | 68 in `ctest`, including golden files and a random cross-check; clean under AddressSanitizer and UBSan |
+
+## See it step by step
+
+**[Open the interactive viewer →](https://krish-mehta-01.github.io/mini-nse/)** Step through a whole morning: orders
+arriving, the book filling up, the auction trying every price and crossing them out rule by rule, the fills, and
+9:15 trading. Every number on the page comes from the C++ engine (`mini_nse_trace`); the page only displays it.
+
+[![The viewer at the opening auction](docs/results/viewer.png)](https://krish-mehta-01.github.io/mini-nse/#morning=case1_morning&step=10)
 
 ## The problem
 
@@ -116,9 +124,11 @@ Needs a C++20 compiler (GCC 13+ or Clang 16+), CMake 3.22+, and Python 3 for the
 
 ```bash
 cmake -S . -B build && cmake --build build -j
-ctest --test-dir build --output-on-failure            # 67 tests
+ctest --test-dir build --output-on-failure            # 68 tests
 
 ./build/mini_nse_replay examples/case1_morning.txt    # a whole morning, line by line
+python3 viewer/make_traces.py build/mini_nse_trace    # traces for the viewer, then:
+python3 -m http.server -d viewer 8000                 # open http://localhost:8000
 python3 tools/verify/fuzz.py --replay build/mini_nse_replay --count 20000
 
 cmake -S . -B build-release -DCMAKE_BUILD_TYPE=Release && cmake --build build-release -j
@@ -153,9 +163,11 @@ mini-nse/
 ├── src/                    the engine's implementation (one .cpp per header)
 ├── apps/                   command-line programs
 │   ├── replay.cpp              mini_nse_replay: play morning files, print every fact
+│   ├── trace.cpp               mini_nse_trace: every step of a morning as JSON, for the viewer
 │   └── bench.cpp               mini_nse_bench: latency percentiles per event
 ├── tests/                  GoogleTest: the 9 hand-solved cases, phase rules, invariants, determinism
-├── examples/               a sample morning and its checked output (a golden-file test)
+├── examples/               sample mornings (cases 1, 5, 9 and a random one) and golden outputs
+├── viewer/                 the step-by-step web viewer (plain HTML/JS, deployed to GitHub Pages)
 ├── tools/                  Python, standard library only (charts need matplotlib)
 │   ├── collect/                collect_preopen.py saves NSE's pre-open data each morning;
 │   │                           sync_cloud_data.py pulls the cloud-collected copy
@@ -163,9 +175,9 @@ mini-nse/
 │   └── charts/                 latency_chart.py
 ├── docs/
 │   ├── spec/                   NSE's rules with sources, the 9 test cases and their answers
-│   └── results/                real-data results and the charts in this README
+│   └── results/                real-data results, the charts and the viewer screenshot in this README
 ├── data/                   not committed: raw/ (laptop collector), cloud/ (cloud collector), results/
-├── .github/workflows/      CI: build and run every test on each push
+├── .github/workflows/      CI (build and run every test on each push) and the viewer's Pages deploy
 ├── CMakeLists.txt
 └── LICENSE
 ```
