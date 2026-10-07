@@ -156,7 +156,8 @@ mini-nse/
 ├── tests/                  GoogleTest: the 9 hand-solved cases, phase rules, invariants, determinism
 ├── examples/               a sample morning and its checked output (a golden-file test)
 ├── tools/                  Python, standard library only (charts need matplotlib)
-│   ├── collect/                collect_preopen.py: saves NSE's pre-open data each morning
+│   ├── collect/                collect_preopen.py saves NSE's pre-open data each morning;
+│   │                           sync_cloud_data.py pulls the cloud-collected copy
 │   ├── verify/                 reference engine, random fuzzer, NSE converter, real-data validation
 │   └── charts/                 latency_chart.py
 ├── docs/
