@@ -1,0 +1,12 @@
+# Case 5 from docs/spec/test-cases.md: the opening price is a price nobody quoted.
+# Rules 1 and 2 tie between 100.00 and 101.00, and the previous close sits exactly halfway between them.
+PREV_CLOSE 100.50
+
+PHASE PREOPEN
+ADD 11 SELL LIMIT 100.00 100
+ADD 1 BUY LIMIT 101.00 100
+PHASE LIMIT_ONLY
+PHASE AUCTION                  # opens at 100.50: the previous close itself
+PHASE CONTINUOUS
+ADD 2 BUY LIMIT 100.40 50      # nobody is selling yet, so it waits
+ADD 12 SELL MARKET 30          # takes 30 from buyer 2 at 100.40

@@ -64,3 +64,12 @@ add_test(NAME fuzz_300_random_mornings_against_python_reference
 # Benchmark: per-event latency percentiles and throughput (use a Release build)
 add_executable(mini_nse_bench apps/bench.cpp)
 target_link_libraries(mini_nse_bench PRIVATE mini_nse)
+
+# Trace: every step of a morning as JSON, for the web viewer in viewer/
+add_executable(mini_nse_trace apps/trace.cpp)
+target_link_libraries(mini_nse_trace PRIVATE mini_nse)
+
+# Golden-file test: the trace of the example morning must not change either
+add_test(NAME trace_case1_morning_matches_golden_file
+  COMMAND sh -c "$<TARGET_FILE:mini_nse_trace> examples/case1_morning.txt | diff - examples/case1_morning.trace.expected"
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

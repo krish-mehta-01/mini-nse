@@ -1,0 +1,12 @@
+# Case 9 from docs/spec/test-cases.md: a market order that arrived last is filled first.
+PREV_CLOSE 100.00
+
+PHASE PREOPEN
+ADD 1 BUY LIMIT 100.00 100
+ADD 2 BUY LIMIT 100.00 100
+ADD 11 SELL LIMIT 100.00 120
+ADD 3 BUY MARKET 50            # last to arrive, first to fill
+PHASE LIMIT_ONLY
+PHASE AUCTION                  # 120 shares at 100.00: buyer 3 gets 50, buyer 1 gets 70, buyer 2 gets none
+PHASE CONTINUOUS               # buyer 1 keeps its place ahead of buyer 2
+ADD 21 SELL LIMIT 100.00 40    # fills buyer 1's last 30, then 10 of buyer 2
