@@ -9,7 +9,7 @@ at 9:15. It's checked against NSE's own published prices, against an independent
 
 | | |
 |---|---|
-| **Real NSE data** | Matches NSE's indicative opening price on **327 of 329** checks where the whole book is visible (2 trading days); both misses are traced to NSE publishing its price one order behind its book |
+| **Real NSE data** | Matches NSE's indicative opening price on **561 of 563** checks where the whole book is visible (3 trading days); both misses are traced to NSE publishing its price one order behind its book |
 | **Random cross-check** | **20,000** random mornings vs a separate Python engine: **0 mismatches** (250,000+ trades compared) |
 | **Speed** | **5.6–6.5 million events/s**; a new order in the normal market takes **~180 ns** typically, **~0.7 µs** at p99 |
 | **Tests** | 68 in `ctest`, including golden files and a random cross-check; clean under AddressSanitizer and UBSan |
@@ -69,19 +69,19 @@ the same book and must give the same answer.
 
 ![Engine vs NSE](docs/results/real-data.png)
 
-- **Exact, where the whole book is visible: 327 / 329** over two trading days. Both misses (HYBRIDFIN on 6 Oct,
-  SHARDUL on 7 Oct) come from the session's first snapshot at 09:00:11 and are explained automatically: NSE's
+- **Exact, where the whole book is visible: 561 / 563** over three trading days (8 Oct: 234 / 234). Both misses
+  (HYBRIDFIN on 6 Oct, SHARDUL on 7 Oct) come from the session's first snapshot at 09:00:11 and are explained automatically: NSE's
   price equals the book's result with its newest order removed, so NSE published the price one order behind
   the book. The next snapshots agreed with the engine.
-- **Final result, full book: 16 / 21.** All 5 misses are explained by orders arriving in the seconds between
+- **Final result, full book: 28 / 34.** All 6 misses are explained by orders arriving in the seconds between
   NSE's last refresh and the close (NSE's own last indicative price moved too).
 - **Market orders count at every price**, as the rules say: all 83 full books containing market orders match,
   against only 38 if market orders were left out.
 - **Partial books (~52%)** are an approximation, not a correctness test: NSE shows only ~10 price levels, so
   hidden orders have to be guessed.
 
-Details and every mismatch: [docs/results/real-data-results.md](docs/results/real-data-results.md). Two trading days so
-far (6–7 Oct 2026); the numbers grow as the collector runs.
+Details and every mismatch: [docs/results/real-data-results.md](docs/results/real-data-results.md). Three trading days so
+far (6–8 Oct 2026); the numbers grow as the collector runs.
 
 ### Against an independent implementation
 
