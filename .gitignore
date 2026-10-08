@@ -10,3 +10,4 @@ __pycache__/
 
 # Viewer traces are generated (viewer/make_traces.py)
 viewer/traces/
+viewer/package-lock.json
