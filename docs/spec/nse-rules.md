@@ -133,6 +133,7 @@ What `api/market-data-pre-open?key=ALL` returned on 2026-10-05 (checked against 
 | ~~Q5~~ | ~~Market orders: do they count toward demand/supply at *every* candidate price?~~ **Confirmed from data 2026-10-06:** all 83 full-book stocks with market orders match NSE's price when they count at every price; only 38 of 83 would match if they were ignored | Done |
 | Q6 | Modifying an order in pre-open: assumed only a quantity *reduction* keeps time priority (standard exchange practice; implemented in `AuctionBook::modify`) | NSE FAQ / circular |
 | Q7 | Normal market: what happens to the unfilled part of a market order? Assumed **cancelled** (`OrderBook::submit`); some exchanges convert it to a limit order instead | NSE normal-market FAQ |
+| Q8 | AATMAJ (SME, series SM), 2026-10-09: NSE showed a 2,000-share market (ATO) sell, but its indicative price ignored it for 2+ minutes (09:04–09:06), and at 09:01:25 NSE's own sell total excluded it too. Is it a display quirk, or do SME market orders work differently (e.g. converted to a limit price, or lot rules)? The engine counts market orders at every price, which matches NSE on all 83 other books with market orders | Watch for more cases in the validation report; NSE SME pre-open FAQ |
 
 Searched again 2026-10-06 for the circular behind the 7 Sep 2026 change: brokers cite NSE/CMTR/74969, but that file
 returns 404 on NSE's archive and sources disagree on which circular it is. Several independent sources do agree on

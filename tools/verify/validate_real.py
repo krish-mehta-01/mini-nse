@@ -52,11 +52,13 @@ def is_after_close(snapshot):
     return finished > 0.1 * len(entries)
 
 
-def lagging_order(book):
+def order_left_out(book):
     """If NSE's price matches this book with exactly one order removed, describe that order.
 
-    NSE publishes the book and its indicative price together, but they can be computed a moment apart; then
-    the price belongs to the book as it was one order earlier.
+    NSE publishes the book, its totals and its indicative price side by side, but they can disagree by an order:
+    a price computed a moment before the book, or an order NSE shows but doesn't count. Finding the one order
+    whose removal reproduces NSE's price shows exactly where they disagree. (The data has no order timestamps, so
+    this can't say whether that order was the newest.)
     """
     orders = [dict(side="BUY", type="MARKET", price=0, qty=book["ato_buy"]),
               dict(side="SELL", type="MARKET", price=0, qty=book["ato_sell"])]
@@ -113,10 +115,10 @@ def validate_day(replay, day, snaps):
     for (when, book, variant), (price, quantity) in zip(meta, engine):
         explanation = ""
         if book["full_book"] and price != book["iep"]:
-            order = lagging_order(book)
-            explanation = (f"NSE's price matches the book without its newest order ({order})" if order
+            order = order_left_out(book)
+            explanation = (f"NSE's price matches this book with one order left out: {order}" if order
                            else "unexplained")
-        rows.append({"check": "indicative", "time": f"{when:%H:%M:%S}", "symbol": book["symbol"],
+        rows.append({"check": "indicative", "date": day, "time": f"{when:%H:%M:%S}", "symbol": book["symbol"],
                      "series": book["series"], "book": "full" if book["full_book"] else "partial",
                      "variant": variant, "nse_price": book["iep"], "engine_price": price,
                      "price_match": price == book["iep"], "nse_quantity": "", "engine_quantity": quantity,
@@ -234,11 +236,17 @@ def main():
         lines.append("")
 
     misses = [r for r in all_rows if r["check"] == "indicative" and r["book"] == "full" and not r["price_match"]]
-    lines += ["## Every full-book indicative mismatch, explained", ""]
+    lines += ["## Every full-book indicative mismatch", "",
+              "A mismatch seen in one snapshot fits NSE publishing its price a moment out of step with its book. The",
+              "same mismatch repeated across snapshots can't be that; see open question Q8 in docs/spec/nse-rules.md.", ""]
+    groups = collections.OrderedDict()  # the same mismatch over consecutive snapshots is reported once
     for r in misses:
-        engine = nse.fmt(r["engine_price"]) if r["engine_price"] else "none"
-        official = nse.fmt(r["nse_price"]) if r["nse_price"] else "none"
-        lines.append(f"- {r['symbol']} at {r['time']}: engine {engine}, NSE {official}. {r['explanation']}.")
+        key = (r["date"], r["symbol"], r["engine_price"], r["nse_price"], r["explanation"])
+        groups.setdefault(key, []).append(r["time"])
+    for (date, symbol, engine, official, explanation), times in groups.items():
+        repeated = f" Same in {len(times)} snapshots in a row." if len(times) > 1 else ""
+        lines.append(f"- {symbol}, {date} at {', '.join(times)}: engine {nse.fmt(engine) if engine else 'none'}, "
+                     f"NSE {nse.fmt(official) if official else 'none'}. {explanation}.{repeated}")
     lines += ["" if misses else "None.", ""]
 
     (ROOT / "docs" / "results" / "real-data-results.md").write_text("\n".join(lines), encoding="utf-8")
